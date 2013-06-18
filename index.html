@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link href="http://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
+<style>
+body {
+  font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+  position: relative;
+  font-size: 14px;
+}
+
+#c {
+	
+}
+
+img {
+	visibility: collapse;
+}
+</style>
+</head>
+<body>
+<section id="root">
+	<h1>
+		Color Dodge
+	</h1>
+	<canvas id="c" width="800" height="800"></canvas>
+	<div id="output"></div>
+	<img id="img" src="img/image.jpg" width="960" height="640" alt="" />
+	<img id="tex" src="img/texture.gif" width="2292" height="1216" alt="" />
+</section>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+(function ($) {
+	
+	"use strict";
+	
+	var win = $(window);
+	
+	var run = true;
+	
+	var c = $('#c');
+	var img = $('#img');
+	var tex = $('#tex');
+	
+	var size = {
+		width: c.width(),
+		height: c.height()
+	};
+	
+	var bufImg, bufTex, dataImg, dataTex, ctx;
+	
+	var createBuffer = function (img) {
+		var can = $('<canvas />'); //.width(img.width()).height(img.height());
+		return can;
+	};
+	
+	var getImageData = function (canvas, img) {
+		var ctx = canvas.get(0).getContext('2d');
+		ctx.canvas.width = img.width();
+		ctx.canvas.height = img.height();
+		ctx.drawImage(img.get(0), 0, 0, img.width(), img.height());
+		return ctx.getImageData(0, 0, img.width(), img.height());
+	};
+	
+	var paint = function () {
+		if (!run) {
+			return false;
+		}
+		console.time('paint');
+		ctx.clearRect(0, 0, size.width, size.height);
+		
+		var ox = 0;// (~~(Math.random() * 1000) % 4) * 4;
+		var oy = 0;//(~~(Math.random() * 1000) % 2) * 4;
+		//console.log(offset);
+		var p = size.width * 4;
+		var l = p * size.height;
+		var data = ctx.getImageData(0, 0, size.width, size.height);
+		var bits = data.data;
+		
+		for (var x=0; x<l; x++) {
+			if (!((x-3)%4)) {
+				bits[x] = dataImg.data[x];
+			} else {
+				var rx = x%p;
+				var ry = ~~(x/p);
+				// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
+				var t = 256 * dataImg.data[ry*dataImg.width+rx];
+				var b = 255 - dataTex.data[(ry+oy)*dataTex.width+rx+ox] + 1;
+				
+				bits[x] = dataImg.data[ry*dataImg.width+rx];// ~~( t/b );
+			}
+		}
+		ctx.putImageData(data, 0, 0);
+		//ctx.putImageData(dataTex, 0, 0);
+		
+		//setTimeout(paint, 1000);
+		
+		console.timeEnd('paint');
+	};
+	
+	var load = function () {
+		bufImg = createBuffer(img); 
+		bufTex = createBuffer(tex);
+		dataImg = getImageData(bufImg, img);
+		dataTex = getImageData(bufTex, tex);
+		paint();
+		img.remove();
+		tex.remove();
+	};
+	
+	var init = function () {
+		ctx = c.get(0).getContext('2d');
+		win.load(load);
+	};
+	
+	$(init);
+	
+})(jQuery);
+</script>
+</body>
+</html>
