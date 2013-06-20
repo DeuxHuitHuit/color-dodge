@@ -24,7 +24,7 @@ img {
 	<h1>
 		Color Dodge
 	</h1>
-	<canvas id="c" width="800" height="800"></canvas>
+	<canvas id="c" width="800" height="500"></canvas>
 	<div id="output"></div>
 	<img id="img" src="img/image.jpg" width="960" height="640" alt="" />
 	<img id="tex" src="img/texture.gif" width="2292" height="1216" alt="" />
@@ -48,7 +48,7 @@ img {
 		height: c.height()
 	};
 	
-	var bufImg, bufTex, dataImg, dataTex, ctx;
+	var bufImg, bufTex, dataImg, dataTex, ctx, count = 0;
 	
 	var createBuffer = function (img) {
 		var can = $('<canvas />'); //.width(img.width()).height(img.height());
@@ -80,33 +80,38 @@ img {
 		
 		var color_dodge = function (i, m) {
 			// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
-			var t = 256 * i; //dataImg.data[ry * dataImg.width + rx];
-			var b = 255 - m + 1; // dataTex.data[(ry + oy) * dataTex.width + rx + ox]
-			
-			return ~~( t/b );
+			return ~~( (256 * i)/(255 - m + 1) );
 		};
 		
 		for (var y = 0; y < size.height; y++) {
 			var yc = y * size.width;
 			var yi = y * dataImg.width;
+			var ym = y * dataTex.width;
 			
 			for (var x = 0; x < size.width; x++) {
 				
 				var c = (yc+x)*4;
 				var i = (yi+x)*4;
+				var m = (ym+x)*4;
 				
-				bits[c+0] = dataImg.data[i+0];
-				bits[c+1] = dataImg.data[i+1];
-				bits[c+2] = dataImg.data[i+2];
+				bits[c+0] = color_dodge(dataImg.data[i+0], dataTex.data[m+0]);
+				bits[c+1] = color_dodge(dataImg.data[i+1], dataTex.data[m+1]);
+				bits[c+2] = color_dodge(dataImg.data[i+2], dataTex.data[m+2]);
+				//bits[c+0] = dataImg.data[i+0];
+				//bits[c+1] = dataImg.data[i+1];
+				//bits[c+2] = dataImg.data[i+2];
 				bits[c+3] = dataImg.data[i+3];
 			}
 		}
 		ctx.putImageData(data, 0, 0);
 		//ctx.putImageData(dataTex, 0, 0);
 		
-		//setTimeout(paint, 1000);
+		count++;
+		
+		setTimeout(paint, count*1000);
 		
 		console.timeEnd('paint');
+		
 	};
 	
 	var load = function () {
