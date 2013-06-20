@@ -73,22 +73,32 @@ img {
 		var ox = 0;// (~~(Math.random() * 1000) % 4) * 4;
 		var oy = 0;//(~~(Math.random() * 1000) % 2) * 4;
 		//console.log(offset);
-		var p = size.width * 4;
-		var l = p * size.height;
+		var p = size.width;
+		//var l = p * size.height;
 		var data = ctx.getImageData(0, 0, size.width, size.height);
 		var bits = data.data;
 		
-		for (var x=0; x<l; x++) {
-			if (!((x-3)%4)) {
-				bits[x] = dataImg.data[x];
-			} else {
-				var rx = x%p;
-				var ry = ~~(x/p);
-				// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
-				var t = 256 * dataImg.data[ry*dataImg.width+rx];
-				var b = 255 - dataTex.data[(ry+oy)*dataTex.width+rx+ox] + 1;
+		var color_dodge = function (i, m) {
+			// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
+			var t = 256 * i; //dataImg.data[ry * dataImg.width + rx];
+			var b = 255 - m + 1; // dataTex.data[(ry + oy) * dataTex.width + rx + ox]
+			
+			return ~~( t/b );
+		};
+		
+		for (var y = 0; y < size.height; y++) {
+			var yc = y * size.width;
+			var yi = y * dataImg.width;
+			
+			for (var x = 0; x < size.width; x++) {
 				
-				bits[x] = dataImg.data[ry*dataImg.width+rx];// ~~( t/b );
+				var c = (yc+x)*4;
+				var i = (yi+x)*4;
+				
+				bits[c+0] = dataImg.data[i+0];
+				bits[c+1] = dataImg.data[i+1];
+				bits[c+2] = dataImg.data[i+2];
+				bits[c+3] = dataImg.data[i+3];
 			}
 		}
 		ctx.putImageData(data, 0, 0);
