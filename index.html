@@ -24,7 +24,7 @@ img {
 	<h1>
 		Color Dodge
 	</h1>
-	<canvas id="c" width="800" height="500"></canvas>
+	<canvas id="c" width="960" height="640"></canvas>
 	<div>
 	<button id="stop">Stop</button>
 	<button id="start">Start</button>
@@ -115,10 +115,10 @@ img {
 					bits[c+2] = dI[i+2];
 					bits[c+3] = dI[i+3];
 				} else if (mode === 2) {
-					bits[c+0] = dT[i+0];
-					bits[c+1] = dT[i+1];
-					bits[c+2] = dT[i+2];
-					bits[c+3] = dT[i+3];
+					bits[c+0] = dT[m+0];
+					bits[c+1] = dT[m+1];
+					bits[c+2] = dT[m+2];
+					bits[c+3] = dT[m+3];
 				}
 			}
 		}
@@ -127,7 +127,7 @@ img {
 		
 		count++;
 		
-		setTimeout(paint, /*count*/500);
+		setTimeout(paint, /*count*/100);
 		
 		console.timeEnd('paint');
 	};
