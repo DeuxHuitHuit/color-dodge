@@ -28,6 +28,9 @@ img {
 	<div>
 	<button id="stop">Stop</button>
 	<button id="start">Start</button>
+	<button class="mode" data-mode="0">Dodge</button>
+	<button class="mode" data-mode="1">Image</button>
+	<button class="mode" data-mode="2">Mask</button>
 	</div>
 	<div id="output"></div>
 	<img id="img" src="img/image.jpg" width="960" height="640" alt="" />
@@ -42,15 +45,16 @@ img {
 	var win = $(window);
 	
 	var run = true;
+	var mode = 0;
 	
-	var c = $('#c');
+	var can = $('#c');
 	
 	var size = {
-		width: c.width(),
-		height: c.height()
+		width: can.width(),
+		height: can.height()
 	};
 	
-	var dataImg, dataTex, ctx, count = 0;
+	var dataImg, dataTex, count = 0;
 	
 	var createBuffer = function (img) {
 		var can = $('<canvas />'); //.width(img.width()).height(img.height());
@@ -70,6 +74,8 @@ img {
 			return false;
 		}
 		console.time('paint');
+		
+		var ctx = can.get(0).getContext('2d');
 		
 		ctx.clearRect(0, 0, size.width, size.height);
 		
@@ -98,13 +104,22 @@ img {
 				var i = (yi+x)*4;
 				var m = (ym+x+ox)*4;
 				
-				bits[c+0] = color_dodge(dI[i+0], dT[m+0]);
-				bits[c+1] = color_dodge(dI[i+1], dT[m+1]);
-				bits[c+2] = color_dodge(dI[i+2], dT[m+2]);
-				//bits[c+0] = dataImg.data[i+0];
-				//bits[c+1] = dataImg.data[i+1];
-				//bits[c+2] = dataImg.data[i+2];
-				bits[c+3] = dataImg.data[i+3];
+				if (mode === 0) {
+					bits[c + 0] = color_dodge(dI[i + 0], dT[m + 0]);
+					bits[c + 1] = color_dodge(dI[i + 1], dT[m + 1]);
+					bits[c + 2] = color_dodge(dI[i + 2], dT[m + 2]);
+					bits[c+3] = color_dodge(dI[i + 3], dT[m + 3]);
+				} else if (mode === 1) {
+					bits[c+0] = dI[i+0];
+					bits[c+1] = dI[i+1];
+					bits[c+2] = dI[i+2];
+					bits[c+3] = dI[i+3];
+				} else if (mode === 2) {
+					bits[c+0] = dT[i+0];
+					bits[c+1] = dT[i+1];
+					bits[c+2] = dT[i+2];
+					bits[c+3] = dT[i+3];
+				}
 			}
 		}
 		ctx.putImageData(data, 0, 0);
@@ -137,12 +152,14 @@ img {
 		$('#stop').click(function () {
 			run = false;
 		});
+		$('button.mode').click(function () {
+			mode = parseInt($(this).attr('data-mode'), 10);
+		});
 		
 		startPaint();
 	};
 	
 	var init = function () {
-		ctx = c.get(0).getContext('2d');
 		win.load(load);
 	};
 	
