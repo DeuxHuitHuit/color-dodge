@@ -25,6 +25,10 @@ img {
 		Color Dodge
 	</h1>
 	<canvas id="c" width="800" height="500"></canvas>
+	<div>
+	<button id="stop">Stop</button>
+	<button id="start">Start</button>
+	</div>
 	<div id="output"></div>
 	<img id="img" src="img/image.jpg" width="960" height="640" alt="" />
 	<img id="tex" src="img/texture.gif" width="2292" height="1216" alt="" />
@@ -40,15 +44,13 @@ img {
 	var run = true;
 	
 	var c = $('#c');
-	var img = $('#img');
-	var tex = $('#tex');
 	
 	var size = {
 		width: c.width(),
 		height: c.height()
 	};
 	
-	var bufImg, bufTex, dataImg, dataTex, ctx, count = 0;
+	var dataImg, dataTex, ctx, count = 0;
 	
 	var createBuffer = function (img) {
 		var can = $('<canvas />'); //.width(img.width()).height(img.height());
@@ -68,15 +70,17 @@ img {
 			return false;
 		}
 		console.time('paint');
+		
 		ctx.clearRect(0, 0, size.width, size.height);
 		
-		var ox = 0;// (~~(Math.random() * 1000) % 4) * 4;
-		var oy = 0;//(~~(Math.random() * 1000) % 2) * 4;
-		//console.log(offset);
-		var p = size.width;
-		//var l = p * size.height;
+		var ox = ~~((Math.random() * 1000) % 50);
+		var oy = ~~((Math.random() * 1000) % 50);
+		
 		var data = ctx.getImageData(0, 0, size.width, size.height);
 		var bits = data.data;
+		
+		var dI = dataImg.data;
+		var dT = dataTex.data;
 		
 		var color_dodge = function (i, m) {
 			// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
@@ -86,17 +90,17 @@ img {
 		for (var y = 0; y < size.height; y++) {
 			var yc = y * size.width;
 			var yi = y * dataImg.width;
-			var ym = y * dataTex.width;
+			var ym = (y + oy) * dataTex.width;
 			
 			for (var x = 0; x < size.width; x++) {
 				
 				var c = (yc+x)*4;
 				var i = (yi+x)*4;
-				var m = (ym+x)*4;
+				var m = (ym+x+ox)*4;
 				
-				bits[c+0] = color_dodge(dataImg.data[i+0], dataTex.data[m+0]);
-				bits[c+1] = color_dodge(dataImg.data[i+1], dataTex.data[m+1]);
-				bits[c+2] = color_dodge(dataImg.data[i+2], dataTex.data[m+2]);
+				bits[c+0] = color_dodge(dI[i+0], dT[m+0]);
+				bits[c+1] = color_dodge(dI[i+1], dT[m+1]);
+				bits[c+2] = color_dodge(dI[i+2], dT[m+2]);
 				//bits[c+0] = dataImg.data[i+0];
 				//bits[c+1] = dataImg.data[i+1];
 				//bits[c+2] = dataImg.data[i+2];
@@ -108,20 +112,33 @@ img {
 		
 		count++;
 		
-		setTimeout(paint, count*1000);
+		setTimeout(paint, /*count*/500);
 		
 		console.timeEnd('paint');
-		
+	};
+	
+	var startPaint = function () {
+		setTimeout(paint, 100);
 	};
 	
 	var load = function () {
-		bufImg = createBuffer(img); 
-		bufTex = createBuffer(tex);
-		dataImg = getImageData(bufImg, img);
-		dataTex = getImageData(bufTex, tex);
-		paint();
+		var img = $('#img');
+		var tex = $('#tex');
+		dataImg = getImageData(createBuffer(img), img);
+		dataTex = getImageData(createBuffer(tex), tex);
+		
 		img.remove();
 		tex.remove();
+		
+		$('#start').click(function () {
+			run = true;
+			startPaint();
+		});
+		$('#stop').click(function () {
+			run = false;
+		});
+		
+		startPaint();
 	};
 	
 	var init = function () {
