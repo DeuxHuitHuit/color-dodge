@@ -1,4 +1,5 @@
-color-dodge
-===========
+# Color Dodge
 
-javascript color dodge with canvas
+Javascript color dodge with canvas
+
+See the demo at <http://deuxhuithuit.github.io/color-dodge/demo/>
