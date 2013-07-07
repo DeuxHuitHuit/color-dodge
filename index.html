@@ -1,171 +1,73 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8" />
-<link href="http://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
-<style>
-body {
-  font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
-  position: relative;
-  font-size: 14px;
-}
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
 
-#c {
-	
-}
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
 
-img {
-	visibility: collapse;
-}
-</style>
-</head>
-<body>
-<section id="root">
-	<h1>
-		Color Dodge
-	</h1>
-	<canvas id="c" width="960" height="640"></canvas>
-	<div>
-	<button id="stop">Stop</button>
-	<button id="start">Start</button>
-	<button class="mode" data-mode="0">Dodge</button>
-	<button class="mode" data-mode="1">Image</button>
-	<button class="mode" data-mode="2">Mask</button>
-	</div>
-	<div id="output"></div>
-	<img id="img" src="img/image.jpg" width="960" height="640" alt="" />
-	<img id="tex" src="img/texture.gif" width="2292" height="1216" alt="" />
-</section>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>
-(function ($) {
-	
-	"use strict";
-	
-	var win = $(window);
-	
-	var run = true;
-	var mode = 0;
-	
-	var can = $('#c');
-	
-	var size = {
-		width: can.width(),
-		height: can.height()
-	};
-	
-	var dataImg, dataTex, count = 0;
-	
-	var createBuffer = function (img) {
-		var can = $('<canvas />'); //.width(img.width()).height(img.height());
-		return can;
-	};
-	
-	var getImageData = function (canvas, img) {
-		var ctx = canvas.get(0).getContext('2d');
-		ctx.canvas.width = img.width();
-		ctx.canvas.height = img.height();
-		ctx.drawImage(img.get(0), 0, 0, img.width(), img.height());
-		return ctx.getImageData(0, 0, img.width(), img.height());
-	};
-	
-	var paint = function () {
-		if (!run) {
-			return false;
-		}
-		console.time('paint');
-		
-		var ctx = can.get(0).getContext('2d');
-		
-		ctx.clearRect(0, 0, size.width, size.height);
-		
-		var ox = ~~((Math.random() * 1000) % 50);
-		var oy = ~~((Math.random() * 1000) % 50);
-		
-		var data = ctx.getImageData(0, 0, size.width, size.height);
-		var bits = data.data;
-		
-		var dI = dataImg.data;
-		var dT = dataTex.data;
-		
-		var color_dodge = function (i, m) {
-			// see http://docs.gimp.org/en/gimp-concepts-layer-modes.html
-			return ~~( (256 * i)/(255 - m + 1) );
-		};
-		
-		for (var y = 0; y < size.height; y++) {
-			var yc = y * size.width;
-			var yi = y * dataImg.width;
-			var ym = (y + oy) * dataTex.width;
-			
-			for (var x = 0; x < size.width; x++) {
-				
-				var c = (yc+x)*4;
-				var i = (yi+x)*4;
-				var m = (ym+x+ox)*4;
-				
-				if (mode === 0) {
-					bits[c + 0] = color_dodge(dI[i + 0], dT[m + 0]);
-					bits[c + 1] = color_dodge(dI[i + 1], dT[m + 1]);
-					bits[c + 2] = color_dodge(dI[i + 2], dT[m + 2]);
-					bits[c+3] = color_dodge(dI[i + 3], dT[m + 3]);
-				} else if (mode === 1) {
-					bits[c+0] = dI[i+0];
-					bits[c+1] = dI[i+1];
-					bits[c+2] = dI[i+2];
-					bits[c+3] = dI[i+3];
-				} else if (mode === 2) {
-					bits[c+0] = dT[m+0];
-					bits[c+1] = dT[m+1];
-					bits[c+2] = dT[m+2];
-					bits[c+3] = dT[m+3];
-				}
-			}
-		}
-		ctx.putImageData(data, 0, 0);
-		//ctx.putImageData(dataTex, 0, 0);
-		
-		count++;
-		
-		setTimeout(paint, /*count*/100);
-		
-		console.timeEnd('paint');
-	};
-	
-	var startPaint = function () {
-		setTimeout(paint, 100);
-	};
-	
-	var load = function () {
-		var img = $('#img');
-		var tex = $('#tex');
-		dataImg = getImageData(createBuffer(img), img);
-		dataTex = getImageData(createBuffer(tex), tex);
-		
-		img.remove();
-		tex.remove();
-		
-		$('#start').click(function () {
-			run = true;
-			startPaint();
-		});
-		$('#stop').click(function () {
-			run = false;
-		});
-		$('button.mode').click(function () {
-			mode = parseInt($(this).attr('data-mode'), 10);
-		});
-		
-		startPaint();
-	};
-	
-	var init = function () {
-		win.load(load);
-	};
-	
-	$(init);
-	
-})(jQuery);
-</script>
-</body>
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>Color-dodge by DeuxHuitHuit</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/DeuxHuitHuit/color-dodge">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Color-dodge</h1>
+            <h2>javascript color dodge with canvas</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/DeuxHuitHuit/color-dodge/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/DeuxHuitHuit/color-dodge/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1>
+<a name="color-dodge" class="anchor" href="#color-dodge"><span class="octicon octicon-link"></span></a>color-dodge</h1>
+
+<p>javascript color dodge with canvas</p>
+
+<p>See the <a href="http://deuxhuithuit.github.io/color-dodge/demo/">demo here</a></p>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/DeuxHuitHuit">DeuxHuitHuit</a> can be found on <a href="https://github.com/DeuxHuitHuit/color-dodge">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
 </html>
