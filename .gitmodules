@@ -1,3 +1,4 @@
 [submodule "demo"]
 	path = demo
-	url = git@github.com:DeuxHuitHuit/color-dodge.git
+	url = https://github.com/DeuxHuitHuit/color-dodge.git
+
